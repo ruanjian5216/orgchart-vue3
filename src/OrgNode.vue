@@ -143,10 +143,15 @@ const isLeaf = computed(() => {
 
 .org-tree-node-label-inner {
   text-align: center;
-  border-radius: 3px;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, .15);
+  border-radius: 4px;
   background: #fff;
   border: v-bind(hideBorder ? 'none' : '1px solid') v-bind(borderColor);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
 }
 
 /* 节点布局 */
