@@ -1,0 +1,39 @@
+{
+  "name": "orgchart-vue3",
+  "version": "1.0.0",
+  "description": "A Vue 3 component for displaying organizational charts",
+  "main": "dist/orgchart-vue3.umd.js",
+  "module": "dist/orgchart-vue3.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/orgchart-vue3.es.js",
+      "require": "./dist/orgchart-vue3.umd.js"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "files": [
+    "dist/",
+    "src/",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite"
+  },
+  "peerDependencies": {
+    "vue": "^3.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.2.3",
+    "sass": "^1.90.0",
+    "vite": "^4.3.9"
+  },
+  "keywords": [
+    "vue3",
+    "orgchart",
+    "organizational chart",
+    "component"
+  ],
+  "author": "",
+  "license": "MIT"
+}

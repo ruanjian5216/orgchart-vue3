@@ -1,0 +1,216 @@
+<template>
+  <!-- 根节点需要容器包裹 -->
+  <div v-if="isRoot" class="org-tree-container">
+    <div class="org-tree">
+      <div class="org-tree-node" :class="{ 'is-leaf': isLeaf }">
+        <!-- 节点标签区域 -->
+        <div class="org-tree-node-label">
+          <div class="org-tree-node-label-inner">
+            <slot :node="node">{{ node.name }}</slot>
+          </div>
+        </div>
+        <!-- 子节点容器 -->
+        <div v-if="node.children && node.children.length > 0" class="org-tree-node-children">
+          <!-- 递归渲染子节点 -->
+          <OrgNode 
+            v-for="(child, i) in node.children" 
+            :key="i" 
+            :node="child"
+            :is-root="false"
+            :borderColor="borderColor"
+            :lineColor="lineColor"
+            :lineWidth="lineWidth"
+            :hideBorder="hideBorder"
+          >
+            <!-- 传递插槽内容到子节点 -->
+            <template #default="slotProps">
+              <slot :node="slotProps.node"></slot>
+            </template>
+          </OrgNode>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 非根节点直接渲染 -->
+  <div v-else class="org-tree-node" :class="{ 'is-leaf': isLeaf }">
+    <!-- 节点标签区域 -->
+    <div class="org-tree-node-label">
+      <div class="org-tree-node-label-inner">
+        <slot :node="node">{{ node.name }}</slot>
+      </div>
+    </div>
+    <!-- 子节点容器 -->
+    <div v-if="node.children && node.children.length > 0" class="org-tree-node-children">
+      <!-- 递归渲染子节点 -->
+      <OrgNode 
+        v-for="(child, i) in node.children" 
+        :key="i" 
+        :node="child"
+        :is-root="false"
+        :borderColor="borderColor"
+        :lineColor="lineColor"
+        :lineWidth="lineWidth"
+        :hideBorder="hideBorder"
+      >
+        <!-- 传递插槽内容到子节点 -->
+        <template #default="slotProps">
+          <slot :node="slotProps.node"></slot>
+        </template>
+      </OrgNode>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { computed } from 'vue';
+
+// 定义组件属性
+// node: 节点数据对象，包含name和children属性
+// isRoot: 是否为根节点
+const props = defineProps({ 
+  node: Object,
+  isRoot: {
+    type: Boolean,
+    default: true
+  },
+  borderColor: {
+    type: String,
+    default: '#ddd'
+  },
+  lineColor: {
+    type: String,
+    default: '#ddd'
+  },
+  lineWidth: {
+    type: String,
+    default: '1px'
+  },
+  hideBorder: {
+    type: Boolean,
+    default: false
+  }
+});
+
+// 计算是否为叶子节点
+const isLeaf = computed(() => {
+  return !(Array.isArray(props.node.children) && props.node.children.length > 0);
+});
+</script>
+ 
+<style scoped>
+/* 组织架构树容器 */
+.org-tree-container {
+  display: inline-block;
+  padding: 15px;
+  background-color: #fff;
+}
+
+.org-tree {
+  display: table;
+  text-align: center;
+}
+
+.org-tree:before,
+.org-tree:after {
+  content: '';
+  display: table;
+}
+
+.org-tree:after {
+  clear: both;
+}
+
+.org-tree-node,
+.org-tree-node-children {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+.org-tree-node:before,
+.org-tree-node:after,
+.org-tree-node-children:before,
+.org-tree-node-children:after {
+  transition: all .35s;
+}
+
+/* 节点标签样式 */
+.org-tree-node-label {
+  position: relative;
+  display: inline-block;
+}
+
+.org-tree-node-label-inner {
+  text-align: center;
+  border-radius: 3px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, .15);
+  background: #fff;
+  border: v-bind(hideBorder ? 'none' : '1px solid') v-bind(borderColor);
+}
+
+/* 节点布局 */
+.org-tree-node {
+  padding-top: 20px;
+  display: table-cell;
+  vertical-align: top;
+}
+
+.org-tree-node.is-leaf {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+/* 连接线样式 - 水平线 */
+.org-tree-node:before,
+.org-tree-node:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 19px;
+}
+
+.org-tree-node:after {
+  left: 50%;
+  border-left: v-bind(lineWidth) solid v-bind(lineColor);
+}
+
+.org-tree-node:not(:first-child):before,
+.org-tree-node:not(:last-child):after {
+  border-top: v-bind(lineWidth) solid v-bind(lineColor);
+}
+
+/* 根节点特殊处理 */
+.org-tree > .org-tree-node {
+  padding-top: 0;
+}
+
+.org-tree > .org-tree-node:after {
+  border-left: 0;
+}
+
+/* 子节点容器 */
+.org-tree-node-children {
+  padding-top: 20px;
+  display: table;
+}
+
+/* 垂直连接线 */
+.org-tree-node-children:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 0;
+  height: 20px;
+  border-left: v-bind(lineWidth) solid v-bind(lineColor);
+}
+
+.org-tree-node-children:after {
+  content: '';
+  display: table;
+  clear: both;
+}
+</style>
