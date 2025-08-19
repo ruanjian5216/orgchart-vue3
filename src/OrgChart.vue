@@ -1,6 +1,15 @@
 <template>
   <div class="org-chart-container">
-    <div class="org-chart" ref="orgChartRef" @wheel="handleWheel" :style="{ transform: `scale(${scale})`, transformOrigin: 'center' }">
+    <div 
+      class="org-chart" 
+      ref="orgChartRef" 
+      @wheel="handleWheel" 
+      :style="{ 
+        transform: `scale(${scale}) translate(${translateX}px, ${translateY}px)`, 
+        transformOrigin: 'center' 
+      }"
+      @mousedown="handleMouseDown"
+    >
       <!-- 使用自定义节点组件，并通过插槽实现自定义内容样式 -->
       <OrgNode :node="props.treeData" :lineColor="props.lineColor" :lineWidth="props.lineWidth" >
         <template #default="{ node }">
@@ -11,6 +20,7 @@
     <div class="zoom-controls" v-if="props.showZoomControls">
       <button @click="zoomIn" class="zoom-btn">+</button>
       <button @click="zoomOut" class="zoom-btn">-</button>
+      <button @click="resetView" class="zoom-btn">↺</button>
     </div>
   </div>
 </template>
@@ -51,9 +61,19 @@ const props = defineProps({
   }
 });
 
-// 缩放相关
+// 缩放和拖动相关
 const scale = ref(1);
+const translateX = ref(0);
+const translateY = ref(0);
 const orgChartRef = ref(null);
+
+// 拖动相关变量
+const isDragging = ref(false);
+const startX = ref(0);
+const startY = ref(0);
+const startTranslateX = ref(0);
+const startTranslateY = ref(0);
+let animationFrameId = null;
 
 // 处理滚轮事件
 const handleWheel = (event) => {
@@ -88,6 +108,78 @@ const zoomOut = () => {
   }
 };
 
+// 鼠标按下事件处理
+const handleMouseDown = (event) => {
+  // 只有在没有按住Ctrl键时才允许拖动
+  if (!event.ctrlKey) {
+    isDragging.value = true;
+    startX.value = event.clientX;
+    startY.value = event.clientY;
+    startTranslateX.value = translateX.value;
+    startTranslateY.value = translateY.value;
+    
+    // 添加拖动类以禁用过渡动画
+    if (orgChartRef.value) {
+      orgChartRef.value.classList.add('dragging');
+    }
+    
+    // 添加全局事件监听器
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    
+    // 阻止默认行为
+    event.preventDefault();
+  }
+};
+
+// 鼠标移动事件处理
+const handleMouseMove = (event) => {
+  if (isDragging.value) {
+    // 取消之前的动画帧
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+    }
+    
+    // 使用requestAnimationFrame优化性能
+    animationFrameId = requestAnimationFrame(() => {
+      const dx = event.clientX - startX.value;
+      const dy = event.clientY - startY.value;
+      
+      translateX.value = startTranslateX.value + dx;
+      translateY.value = startTranslateY.value + dy;
+      
+      animationFrameId = null;
+    });
+  }
+};
+
+// 鼠标释放事件处理
+const handleMouseUp = () => {
+  isDragging.value = false;
+  
+  // 移除拖动类以恢复过渡动画
+  if (orgChartRef.value) {
+    orgChartRef.value.classList.remove('dragging');
+  }
+  
+  // 取消之前的动画帧
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+  
+  // 移除全局事件监听器
+  document.removeEventListener('mousemove', handleMouseMove);
+  document.removeEventListener('mouseup', handleMouseUp);
+};
+
+// 重置视图
+const resetView = () => {
+  scale.value = 1;
+  translateX.value = 0;
+  translateY.value = 0;
+};
+
 // 阻止浏览器默认的Ctrl+滚轮缩放行为
 const preventDefaultZoom = (event) => {
   if (event.ctrlKey && (event.deltaY !== 0)) {
@@ -103,6 +195,8 @@ onMounted(() => {
 onUnmounted(() => {
   // 清理事件监听器
   document.removeEventListener('wheel', preventDefaultZoom);
+  document.removeEventListener('mousemove', handleMouseMove);
+  document.removeEventListener('mouseup', handleMouseUp);
 });
 </script>
 
@@ -111,12 +205,17 @@ onUnmounted(() => {
   position: relative;
   width: 100%;
   height: 100%;
+  overflow: hidden;
 }
 
 .org-chart {
   text-align: center;
   transition: transform 0.2s ease;
   cursor: grab;
+  
+  &.dragging {
+    transition: none;
+  }
   
   &:active {
     cursor: grabbing;
