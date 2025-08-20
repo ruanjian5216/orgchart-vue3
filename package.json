@@ -1,6 +1,6 @@
 {
   "name": "orgchart-vue3",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Vue 3 component for displaying organizational charts",
   "main": "dist/orgchart-vue3.umd.js",
   "module": "dist/orgchart-vue3.es.js",
