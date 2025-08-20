@@ -5,23 +5,17 @@
       <div class="org-tree-node" :class="{ 'is-leaf': isLeaf }">
         <!-- 节点标签区域 -->
         <div class="org-tree-node-label">
-          <div class="org-tree-node-label-inner">
-            <slot :node="node">{{ node.name }}</slot>
-          </div>
+          <slot :node="node">
+            <div class="org-tree-node-label-inner">
+              {{ node.name }}
+            </div>
+          </slot>
         </div>
         <!-- 子节点容器 -->
         <div v-if="node.children && node.children.length > 0" class="org-tree-node-children">
           <!-- 递归渲染子节点 -->
-          <OrgNode 
-            v-for="(child, i) in node.children" 
-            :key="i" 
-            :node="child"
-            :is-root="false"
-            :borderColor="borderColor"
-            :lineColor="lineColor"
-            :lineWidth="lineWidth"
-            :hideBorder="hideBorder"
-          >
+          <OrgNode v-for="(child, i) in node.children" :key="i" :node="child" :is-root="false"
+            :borderColor="borderColor" :lineColor="lineColor" :lineWidth="lineWidth" :hideBorder="hideBorder">
             <!-- 传递插槽内容到子节点 -->
             <template #default="slotProps">
               <slot :node="slotProps.node"></slot>
@@ -35,23 +29,17 @@
   <div v-else class="org-tree-node" :class="{ 'is-leaf': isLeaf }">
     <!-- 节点标签区域 -->
     <div class="org-tree-node-label">
-      <div class="org-tree-node-label-inner">
-        <slot :node="node">{{ node.name }}</slot>
-      </div>
+      <slot :node="node">
+        <div class="org-tree-node-label-inner">
+          {{ node.name }}
+        </div>
+      </slot>
     </div>
     <!-- 子节点容器 -->
     <div v-if="node.children && node.children.length > 0" class="org-tree-node-children">
       <!-- 递归渲染子节点 -->
-      <OrgNode 
-        v-for="(child, i) in node.children" 
-        :key="i" 
-        :node="child"
-        :is-root="false"
-        :borderColor="borderColor"
-        :lineColor="lineColor"
-        :lineWidth="lineWidth"
-        :hideBorder="hideBorder"
-      >
+      <OrgNode v-for="(child, i) in node.children" :key="i" :node="child" :is-root="false" :borderColor="borderColor"
+        :lineColor="lineColor" :lineWidth="lineWidth" :hideBorder="hideBorder">
         <!-- 传递插槽内容到子节点 -->
         <template #default="slotProps">
           <slot :node="slotProps.node"></slot>
@@ -67,7 +55,7 @@ import { computed } from 'vue';
 // 定义组件属性
 // node: 节点数据对象，包含name和children属性
 // isRoot: 是否为根节点
-const props = defineProps({ 
+const props = defineProps({
   node: Object,
   isRoot: {
     type: Boolean,
@@ -96,7 +84,7 @@ const isLeaf = computed(() => {
   return !(Array.isArray(props.node.children) && props.node.children.length > 0);
 });
 </script>
- 
+
 <style scoped>
 /* 组织架构树容器 */
 .org-tree-container {
@@ -148,7 +136,8 @@ const isLeaf = computed(() => {
   border: v-bind(hideBorder ? 'none' : '1px solid') v-bind(borderColor);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
-  
+  padding: 10px 15px;
+
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
@@ -188,11 +177,11 @@ const isLeaf = computed(() => {
 }
 
 /* 根节点特殊处理 */
-.org-tree > .org-tree-node {
+.org-tree>.org-tree-node {
   padding-top: 0;
 }
 
-.org-tree > .org-tree-node:after {
+.org-tree>.org-tree-node:after {
   border-left: 0;
 }
 
